@@ -1,0 +1,9 @@
+{
+    "esversion": 6,
+    "asi": true,
+    "mocha": true,
+    "node": true,
+    "globals": {
+      "gulp": true
+    }
+}
