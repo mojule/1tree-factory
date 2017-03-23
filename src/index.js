@@ -1,27 +1,46 @@
 'use strict'
 
-const Tree = require( '1tree' )
-const defaultAdapter = require( '1tree/dist/adapter/default' )
+const ApiFactory = require( '@mojule/api-factory' )
+const is = require( '@mojule/is' )
+const adapterWrapper = require( './plugins/adapter-wrapper' )
+const common = require( './common' )
 
-const basePlugins = Object.keys( Tree.plugins ).map( key => Tree.plugins[ key ] )
+const getStateKey = state => state.node
 
-const Mtree = ( ...args ) => {
-  const excludeBase = args.some( arg => typeof arg === 'boolean' && arg )
+const TreeFactory = ( adapter, ...plugins ) => {
+  if( !is.function( adapter ) )
+    throw new Error( 'An adapter module is required' )
 
-  let adapter = defaultAdapter
-  let plugins = excludeBase ? [] : basePlugins
+  if( plugins.length === 1 && is.array( plugins[ 0 ] ) )
+    plugins = plugins[ 0 ]
 
-  args.forEach( arg => {
-    if( Array.isArray( arg ) ){
-      plugins = arg.concat( plugins )
-    } else if( typeof arg === 'function' ){
-      plugins = [ arg ].concat( plugins )
-    } else if( typeof arg === 'object' ) {
-      adapter = arg
+  if( !plugins.every( is.function ) )
+    throw new Error( 'Expected every plugin to be a function' )
+
+  const modules = [ adapter, adapterWrapper, common, ...plugins ]
+  const TreeApi = ApiFactory( modules, { getStateKey } )
+  const statics = TreeApi({})
+  const { createNode, isNode, isValue } = statics
+
+  const Tree = value => {
+    let rawRoot
+
+    if( isValue( value ) ){
+      rawRoot = createNode( value )
+    } else if( isNode( value ) ){
+      rawRoot = value
+    } else {
+      throw new Error( 'Tree requires a node or a node value' )
     }
-  })
 
-  return Tree.adapter( adapter, plugins )
+    const nodeApi = TreeApi( { node: rawRoot, root: rawRoot } )
+
+    return nodeApi
+  }
+
+  Object.assign( Tree, { createNode, isNode, isValue } )
+
+  return Tree
 }
 
-module.exports = Mtree
+module.exports = TreeFactory

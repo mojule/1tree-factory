@@ -1,0 +1,125 @@
+{
+  "value": "Animalia",
+  "children": [
+    {
+      "value": "Chordate",
+      "children": [
+        {
+          "value": "Mammal",
+          "children": [
+            {
+              "value": "Primate",
+              "children": [
+                {
+                  "value": "Hominidae",
+                  "children": [
+                    {
+                      "value": "Homo",
+                      "children": [
+                        {
+                          "value": "Sapiens",
+                          "children": [
+                            {
+                              "value": "Human",
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "value": "Pongidae",
+                  "children": [
+                    {
+                      "value": "Pan",
+                      "children": [
+                        {
+                          "value": "Troglodytes",
+                          "children": [
+                            {
+                              "value": "Chimpanzee",
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "value": "Carnivora",
+              "children": [
+                {
+                  "value": "Felidae",
+                  "children": [
+                    {
+                      "value": "Felis",
+                      "children": [
+                        {
+                          "value": "Domestica",
+                          "children": [
+                            {
+                              "value": "House Cat",
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "value": "Leo",
+                          "children": [
+                            {
+                              "value": "Lion",
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "value": "Arthropoda",
+      "children": [
+        {
+          "value": "Insect",
+          "children": [
+            {
+              "value": "Diptera",
+              "children": [
+                {
+                  "value": "Muscidae",
+                  "children": [
+                    {
+                      "value": "Musca",
+                      "children": [
+                        {
+                          "value": "Domestica",
+                          "children": [
+                            {
+                              "value": "Housefly",
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
