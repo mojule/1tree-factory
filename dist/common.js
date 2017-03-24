@@ -336,6 +336,12 @@ var Common = function Common(node) {
   };
 
   var meta = function meta(name, value) {
+    if (is.undefined(name)) return metadata;
+
+    if (is.object(name)) return Object.assign(metadata, name);
+
+    if (!is.string(name)) throw new Error('Expected an object or a string as first argument to meta');
+
     if (is.undefined(value)) return node.getMeta(name);
 
     return node.setMeta(name, value);
@@ -381,6 +387,16 @@ var Common = function Common(node) {
 
     // if child[ 0 ] is undefined this is the same as append
     return insertBefore(child, children[0]);
+  };
+
+  var prune = function prune(predicate) {
+    var removed = [];
+
+    node.walk(function (current) {
+      if (predicate(current)) removed.push(current.remove());
+    });
+
+    return removed;
   };
 
   var removeAt = function removeAt(index) {
@@ -434,8 +450,8 @@ var Common = function Common(node) {
     accepts: accepts, atPath: atPath, contains: contains, find: find, findAll: findAll, getMeta: getMeta, getPath: getPath, hasChild: hasChild,
     hasChildren: hasChildren, index: index, isEmpty: isEmpty, meta: meta, nodeType: nodeType, setMeta: setMeta, slug: slug,
 
-    append: append, empty: empty, insertAfter: insertAfter, insertAt: insertAt, insertBefore: insertBefore, prepend: prepend, removeAt: removeAt,
-    replaceChild: replaceChild, unwrap: unwrap, value: value, wrap: wrap
+    append: append, empty: empty, insertAfter: insertAfter, insertAt: insertAt, insertBefore: insertBefore, prepend: prepend, prune: prune,
+    removeAt: removeAt, replaceChild: replaceChild, unwrap: unwrap, value: value, wrap: wrap
   };
 };
 
