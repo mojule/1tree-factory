@@ -21,7 +21,7 @@ const isNodeWithId = node => {
     root: node.state.root
   })
 
-  // get the existing isValue
+  // get the existing isNode
   const { isNode } = node
 
   return {

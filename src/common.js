@@ -294,6 +294,17 @@ const Common = node => {
   const setMeta = ( name, value ) => metadata[ name ] = value
 
   const meta = ( name, value ) => {
+    if( is.undefined( name ) )
+      return metadata
+
+    if( is.object( name ) )
+      return Object.assign( metadata, name )
+
+    if( !is.string( name ) )
+      throw new Error(
+        'Expected an object or a string as first argument to meta'
+      )
+
     if( is.undefined( value ) )
       return node.getMeta( name )
 
@@ -330,6 +341,17 @@ const Common = node => {
 
     // if child[ 0 ] is undefined this is the same as append
     return insertBefore( child, children[ 0 ] )
+  }
+
+  const prune = predicate => {
+    const removed = []
+
+    node.walk( current => {
+      if( predicate( current ) )
+        removed.push( current.remove() )
+    })
+
+    return removed
   }
 
   const removeAt = index => {
@@ -386,8 +408,8 @@ const Common = node => {
     accepts, atPath, contains, find, findAll, getMeta, getPath, hasChild,
     hasChildren, index, isEmpty, meta, nodeType, setMeta, slug,
 
-    append, empty, insertAfter, insertAt, insertBefore, prepend, removeAt,
-    replaceChild, unwrap, value, wrap
+    append, empty, insertAfter, insertAt, insertBefore, prepend, prune,
+    removeAt, replaceChild, unwrap, value, wrap
   }
 }
 
