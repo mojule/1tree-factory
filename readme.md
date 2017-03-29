@@ -4,8 +4,8 @@ Generates a tree API over whatever tree-like backing data you may have.
 
 If you don't have a specific tree structure that you'd like to use and just
 want to stick data into a tree and get the benefits of tree-factory's common
-API without having to write adapters, plugins etc. consider using the tree
-package instead (TODO add link)
+API without having to write adapters, plugins etc. consider using the
+[tree](https://github.com/mojule/tree) package instead
 
 The API returned by the factory supports the following methods, documented more
 extensively later in this document:
