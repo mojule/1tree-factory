@@ -11,10 +11,11 @@ var Raw = function Raw(node) {
 
 // must be applied after the adapter, but before anything else
 var AdapterWrapper = function AdapterWrapper(node) {
-  var Node = function Node(rawNode) {
+  var Node = function Node(rawNode, rawParent, rawRoot) {
     return node({
-      root: node.state.root,
-      node: rawNode
+      root: is.undefined(rawRoot) ? node.state.root : rawRoot,
+      node: rawNode,
+      parent: rawParent
     });
   };
 
@@ -23,21 +24,29 @@ var AdapterWrapper = function AdapterWrapper(node) {
       _add = node.add;
 
 
-  var assignRoots = function assignRoots(current) {
+  var assignRoots = function assignRoots(current, rawParent) {
     if (!current.state) throw new Error('Expected wrapped node');
 
     current.state.root = node.state.root;
+    current.state.parent = rawParent;
 
-    current.getChildren().forEach(assignRoots);
+    current.getChildren().forEach(function (child) {
+      return assignRoots(child, current.state.node);
+    });
 
     return current;
   };
 
   var wrapped = {
     getChildren: function getChildren() {
-      return _getChildren().map(Node);
+      var children = _getChildren();
+
+      return children.map(function (child) {
+        return Node(child, Raw(node));
+      });
     },
     remove: function remove(child) {
+      // allow a node other than root to remove itself
       if (is.undefined(child)) {
         var parent = node.getParent();
 
@@ -49,19 +58,21 @@ var AdapterWrapper = function AdapterWrapper(node) {
       var rawChild = _remove(Raw(child));
 
       child.state.root = rawChild;
+      child.state.parent = null;
 
-      return Node(rawChild);
+      return Node(rawChild, null, rawChild);
     },
     add: function add(child, reference) {
       if (!node.accepts(child)) throw new Error('Node cannot accept this child');
 
       var parent = child.getParent();
 
+      // DOM does this too, adding a node moves it from its existing location
       if (parent) parent.remove(child);
 
       var rawChild = _add(Raw(child), Raw(reference));
 
-      return assignRoots(Node(rawChild));
+      return assignRoots(Node(rawChild, Raw(node)), Raw(node));
     }
   };
 

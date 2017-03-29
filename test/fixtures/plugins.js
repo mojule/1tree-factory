@@ -18,7 +18,8 @@ const isValueObject = node => {
 const isNodeWithId = node => {
   const Node = rawNode => node({
     node: rawNode,
-    root: node.state.root
+    root: node.state.root,
+    parent: null
   })
 
   // get the existing isNode

@@ -7,6 +7,9 @@ const common = require( './common' )
 
 const getStateKey = state => state.node
 
+const isState = state =>
+  is.object( state ) && [ 'node', 'root', 'parent' ].every( key => key in state )
+
 const TreeFactory = ( adapter, ...plugins ) => {
   if( !is.function( adapter ) )
     throw new Error( 'An adapter module is required' )
@@ -17,9 +20,14 @@ const TreeFactory = ( adapter, ...plugins ) => {
   if( !plugins.every( is.function ) )
     throw new Error( 'Expected every plugin to be a function' )
 
-  const modules = [ adapter, adapterWrapper, common, ...plugins ]
-  const TreeApi = ApiFactory( modules, { getStateKey } )
-  const statics = TreeApi({})
+  const modules = [
+    adapter, adapterWrapper,
+    common,
+    ...plugins
+  ]
+
+  const TreeApi = ApiFactory( modules, { getStateKey, isState } )
+  const statics = TreeApi({ node: null, root: null, parent: null })
   const { createNode, isNode, isValue } = statics
 
   const Tree = value => {
@@ -30,10 +38,17 @@ const TreeFactory = ( adapter, ...plugins ) => {
     } else if( isNode( value ) ){
       rawRoot = value
     } else {
-      throw new Error( 'Tree requires a node or a node value' )
+      throw new Error( 'Tree requires a raw node or a node value' )
     }
 
-    const nodeApi = TreeApi( { node: rawRoot, root: rawRoot } )
+    const nodeApi = TreeApi( { node: rawRoot, root: rawRoot, parent: null } )
+
+    nodeApi.walk( ( current, parent ) => {
+      if( parent )
+        current.state.parent = parent.state.node
+
+      current.state.root = rawRoot
+    })
 
     return nodeApi
   }

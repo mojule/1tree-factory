@@ -11,6 +11,12 @@ var getStateKey = function getStateKey(state) {
   return state.node;
 };
 
+var isState = function isState(state) {
+  return is.object(state) && ['node', 'root', 'parent'].every(function (key) {
+    return key in state;
+  });
+};
+
 var TreeFactory = function TreeFactory(adapter) {
   for (var _len = arguments.length, plugins = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
     plugins[_key - 1] = arguments[_key];
@@ -23,8 +29,9 @@ var TreeFactory = function TreeFactory(adapter) {
   if (!plugins.every(is.function)) throw new Error('Expected every plugin to be a function');
 
   var modules = [adapter, adapterWrapper, common].concat(_toConsumableArray(plugins));
-  var TreeApi = ApiFactory(modules, { getStateKey: getStateKey });
-  var statics = TreeApi({});
+
+  var TreeApi = ApiFactory(modules, { getStateKey: getStateKey, isState: isState });
+  var statics = TreeApi({ node: null, root: null, parent: null });
   var createNode = statics.createNode,
       isNode = statics.isNode,
       isValue = statics.isValue;
@@ -38,10 +45,16 @@ var TreeFactory = function TreeFactory(adapter) {
     } else if (isNode(value)) {
       rawRoot = value;
     } else {
-      throw new Error('Tree requires a node or a node value');
+      throw new Error('Tree requires a raw node or a node value');
     }
 
-    var nodeApi = TreeApi({ node: rawRoot, root: rawRoot });
+    var nodeApi = TreeApi({ node: rawRoot, root: rawRoot, parent: null });
+
+    nodeApi.walk(function (current, parent) {
+      if (parent) current.state.parent = parent.state.node;
+
+      current.state.root = rawRoot;
+    });
 
     return nodeApi;
   };

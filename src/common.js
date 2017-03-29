@@ -8,16 +8,17 @@ const jsonClone = utils.clone
 const Raw = current => current.state.node
 
 const Common = node => {
-  const Node = rawNode => node({
+  const Node = ( rawNode, rawParent, rawRoot ) => node({
+    root: rawRoot || node.state.root,
     node: rawNode,
-    root: node.state.root
+    parent: rawParent || null
   })
 
   const state = node.state
 
   // expose raw
   const get = () => state.node
-  const getRoot = () => node( { root: state.root, node: state.root } )
+  const getRoot = () => node( { root: state.root, node: state.root, parent: null } )
 
   // functional
 
@@ -44,10 +45,12 @@ const Common = node => {
       throw new Error( 'Node value must be JSON serializable to clone' )
     }
 
-    const clonedNode = Node( node.createNode( clonedValue ) )
+    const rawClone = node.createNode( clonedValue )
+    const clonedNode = Node( rawClone, null, rawClone )
 
     node.getChildren().forEach( child => {
       const clonedChild = child.clone()
+
       clonedNode.add( clonedChild )
     })
 
@@ -88,18 +91,21 @@ const Common = node => {
 
   const firstChild = () => node.getChildren()[ 0 ]
 
-  /*
-    This is horrifically inefficient, however, given that a root is present this
-    will *always* work regardless of the adapter implementation.  The performance
-    issue is mitigated by the parent-map plugin, which wraps getParent,
-    insertBefore etc., or it can be overriden in the adapter if the adapter has
-    a more efficient way, eg. some kind of parent links are stored in the
-    underlying implementation
-  */
-  const getParent = () =>
-    getRoot().find( current =>
+  const getParent = () => {
+    if( node.state.parent )
+      return Node( node.state.parent )
+
+    if( node.state.node === node.state.root )
+      return
+
+    const parent = getRoot().find( current =>
       current.hasChild( node )
     )
+
+    node.state.parent = parent.state.node
+
+    return parent
+  }
 
   const lastChild = () => {
     const children = node.getChildren()

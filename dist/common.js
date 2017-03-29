@@ -10,10 +10,11 @@ var Raw = function Raw(current) {
 };
 
 var Common = function Common(node) {
-  var Node = function Node(rawNode) {
+  var Node = function Node(rawNode, rawParent, rawRoot) {
     return node({
+      root: rawRoot || node.state.root,
       node: rawNode,
-      root: node.state.root
+      parent: rawParent || null
     });
   };
 
@@ -24,7 +25,7 @@ var Common = function Common(node) {
     return state.node;
   };
   var getRoot = function getRoot() {
-    return node({ root: state.root, node: state.root });
+    return node({ root: state.root, node: state.root, parent: null });
   };
 
   // functional
@@ -56,10 +57,12 @@ var Common = function Common(node) {
       throw new Error('Node value must be JSON serializable to clone');
     }
 
-    var clonedNode = Node(node.createNode(clonedValue));
+    var rawClone = node.createNode(clonedValue);
+    var clonedNode = Node(rawClone, null, rawClone);
 
     node.getChildren().forEach(function (child) {
       var clonedChild = child.clone();
+
       clonedNode.add(clonedChild);
     });
 
@@ -107,18 +110,18 @@ var Common = function Common(node) {
     return node.getChildren()[0];
   };
 
-  /*
-    This is horrifically inefficient, however, given that a root is present this
-    will *always* work regardless of the adapter implementation.  The performance
-    issue is mitigated by the parent-map plugin, which wraps getParent,
-    insertBefore etc., or it can be overriden in the adapter if the adapter has
-    a more efficient way, eg. some kind of parent links are stored in the
-    underlying implementation
-  */
   var getParent = function getParent() {
-    return getRoot().find(function (current) {
+    if (node.state.parent) return Node(node.state.parent);
+
+    if (node.state.node === node.state.root) return;
+
+    var parent = getRoot().find(function (current) {
       return current.hasChild(node);
     });
+
+    node.state.parent = parent.state.node;
+
+    return parent;
   };
 
   var lastChild = function lastChild() {

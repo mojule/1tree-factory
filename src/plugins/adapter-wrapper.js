@@ -12,29 +12,36 @@ const Raw = node => {
 
 // must be applied after the adapter, but before anything else
 const AdapterWrapper = node => {
-  const Node = rawNode => node({
-    root: node.state.root,
-    node: rawNode
+  const Node = ( rawNode, rawParent, rawRoot ) => node({
+    root: is.undefined( rawRoot ) ? node.state.root : rawRoot,
+    node: rawNode,
+    parent: rawParent
   })
 
   const {
     getChildren, remove, add
   } = node
 
-  const assignRoots = current => {
+  const assignRoots = ( current, rawParent ) => {
     if( !current.state )
       throw new Error( 'Expected wrapped node' )
 
     current.state.root = node.state.root
+    current.state.parent = rawParent
 
-    current.getChildren().forEach( assignRoots )
+    current.getChildren().forEach( child => assignRoots( child, current.state.node ) )
 
     return current
   }
 
   const wrapped = {
-    getChildren: () => getChildren().map( Node ),
+    getChildren: () => {
+      const children = getChildren()
+
+      return children.map( child => Node( child, Raw( node ) ) )
+    },
     remove: child => {
+      // allow a node other than root to remove itself
       if( is.undefined( child ) ){
         const parent = node.getParent()
 
@@ -47,8 +54,9 @@ const AdapterWrapper = node => {
       const rawChild = remove( Raw( child ) )
 
       child.state.root = rawChild
+      child.state.parent = null
 
-      return Node( rawChild )
+      return Node( rawChild, null, rawChild )
     },
     add: ( child, reference ) => {
       if( !node.accepts( child ) )
@@ -56,12 +64,13 @@ const AdapterWrapper = node => {
 
       const parent = child.getParent()
 
+      // DOM does this too, adding a node moves it from its existing location
       if( parent )
         parent.remove( child )
 
       const rawChild = add( Raw( child ), Raw( reference ) )
 
-      return assignRoots( Node( rawChild ) )
+      return assignRoots( Node( rawChild, Raw( node ) ), Raw( node ) )
     }
   }
 
