@@ -5,20 +5,14 @@ var utils = require('@mojule/utils');
 
 var jsonClone = utils.clone;
 
-var Raw = function Raw(current) {
-  return current.state.node;
-};
-
-var Common = function Common(node) {
+var Common = function Common(node, state, getState) {
   var Node = function Node(rawNode, rawParent, rawRoot) {
     return node({
-      root: rawRoot || node.state.root,
+      root: rawRoot || state.root,
       node: rawNode,
       parent: rawParent || null
     });
   };
-
-  var state = node.state;
 
   // expose raw
   var get = function get() {
@@ -111,15 +105,16 @@ var Common = function Common(node) {
   };
 
   var getParent = function getParent() {
-    if (node.state.parent) return Node(node.state.parent);
+    if (state.node === state.root) return;
 
-    if (node.state.node === node.state.root) return;
+    if (state.parent) return Node(state.parent);
 
     var parent = getRoot().find(function (current) {
       return current.hasChild(node);
     });
 
-    node.state.parent = parent.state.node;
+    var parentState = getState(parent);
+    state.parent = parentState.node;
 
     return parent;
   };

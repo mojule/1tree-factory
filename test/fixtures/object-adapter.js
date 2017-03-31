@@ -2,14 +2,14 @@
 
 const is = require( '@mojule/is' )
 
-const createNode = value => ({ value, children: [] })
+const $createNode = value => ({ value, children: [] })
 
-const ObjectTreeAdapter = node => {
-  const state = node.state
+const ObjectTreeAdapter = ( node, state ) => {
+  const $isNode = rawNode =>
+    is.object( rawNode ) && node.isValue( rawNode.value ) &&
+    is.array( rawNode.children )
 
-  const isNode = rawNode => is.object( rawNode ) && node.isValue( rawNode.value ) && is.array( rawNode.children )
-
-  const isValue = value => !node.isNode( value )
+  const $isValue = value => !node.isNode( value )
 
   const getChildren = () => state.node.children.slice()
 
@@ -38,7 +38,8 @@ const ObjectTreeAdapter = node => {
   }
 
   return {
-    isNode, isValue, createNode, getChildren, getValue, setValue, remove, add
+    $isNode, $isValue, $createNode,
+    getChildren, getValue, setValue, remove, add
   }
 }
 

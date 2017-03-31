@@ -190,7 +190,7 @@ const adapter = ( api, state ) => {
   // implement functions here
 
   return {
-    isNode, isValue, createNode, getChildren, getValue, setValue, remove, add
+    $isNode, $isValue, $createNode, getChildren, getValue, setValue, remove, add
   }
 }
 ```
@@ -198,6 +198,9 @@ const adapter = ( api, state ) => {
 For examples of adapters, please see the [test fixtures](/test/fixtures),
 which include raw tree data for the biology example represented as both arrays
 and objects, and the adapters for working with either format
+
+The $prefix means that the function is static and will be available on your
+tree API, not just node instances.
 
 If you want a better understanding of why this pattern is used (it is used by
 tree-factory for both adapters and plugins), please read the documentation for
@@ -208,7 +211,7 @@ built.
 
 Adapters must implement the following functions:
 
-`isNode, isValue, createNode, getChildren, getValue, setValue, remove, add`
+`$isNode, $isValue, $createNode, getChildren, getValue, setValue, remove, add`
 
 The signatures for these are as follows, using similar syntax to typescript or
 rtype.
@@ -216,11 +219,11 @@ rtype.
 `RawNode` refers to the raw underlying node data
 
 ```
-isNode( rawNode:Any ) => isNode:Boolean
+$isNode( rawNode:Any ) => isNode:Boolean
 
-isValue( value:Any ) => isValue:Boolean
+$isValue( value:Any ) => isValue:Boolean
 
-createNode( value:Any ) => rawNode:RawNode
+$createNode( value:Any ) => rawNode:RawNode
 
 getChildren() => childNodes:[RawNode]
 
@@ -235,8 +238,8 @@ add( rawChild:RawNode, reference?:RawNode ) => addedChild:RawNode
 
 ### Notes
 
-`isNode`, `isValue` and `createNode` are treated as static functions, that is,
-they shouldn't depend on the state passed to your adapter
+`$isNode`, `$isValue` and `$createNode` are treated as static functions, that
+is, they shouldn't depend on the state passed to your adapter
 
 `add` called with a single argument should add the new child to the end of the
 child node list, but if called with a second `reference` argument, should

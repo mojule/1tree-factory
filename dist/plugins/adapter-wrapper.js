@@ -2,47 +2,27 @@
 
 var is = require('@mojule/is');
 
-// ensure that undefined etc. is passed through to underlying adapter unchanged
-var Raw = function Raw(node) {
-  if (node && node.state && node.state.node) return node.state.node;
-
-  return node;
-};
-
 // must be applied after the adapter, but before anything else
-var AdapterWrapper = function AdapterWrapper(node) {
-  var Node = function Node(rawNode, rawParent, rawRoot) {
-    return node({
-      root: is.undefined(rawRoot) ? node.state.root : rawRoot,
-      node: rawNode,
-      parent: rawParent
-    });
-  };
-
+var AdapterWrapper = function AdapterWrapper(node, state, getState) {
   var _getChildren = node.getChildren,
       _remove = node.remove,
-      _add = node.add;
+      _add = node.add,
+      getValue = node.getValue,
+      setValue = node.setValue;
 
-
-  var assignRoots = function assignRoots(current, rawParent) {
-    if (!current.state) throw new Error('Expected wrapped node');
-
-    current.state.root = node.state.root;
-    current.state.parent = rawParent;
-
-    current.getChildren().forEach(function (child) {
-      return assignRoots(child, current.state.node);
-    });
-
-    return current;
-  };
 
   var wrapped = {
     getChildren: function getChildren() {
       var children = _getChildren();
 
       return children.map(function (child) {
-        return Node(child, Raw(node));
+        var childState = {
+          node: child,
+          parent: state.node,
+          root: state.root
+        };
+
+        return node(childState);
       });
     },
     remove: function remove(child) {
@@ -55,12 +35,14 @@ var AdapterWrapper = function AdapterWrapper(node) {
         return parent.remove(node);
       }
 
-      var rawChild = _remove(Raw(child));
+      var childState = getState(child);
 
-      child.state.root = rawChild;
-      child.state.parent = null;
+      childState.parent = null;
+      childState.root = childState.node;
 
-      return Node(rawChild, null, rawChild);
+      _remove(childState.node);
+
+      return child;
     },
     add: function add(child, reference) {
       if (!node.accepts(child)) throw new Error('Node cannot accept this child');
@@ -70,10 +52,35 @@ var AdapterWrapper = function AdapterWrapper(node) {
       // DOM does this too, adding a node moves it from its existing location
       if (parent) parent.remove(child);
 
-      var rawChild = _add(Raw(child), Raw(reference));
+      var childState = getState(child);
 
-      return assignRoots(Node(rawChild, Raw(node)), Raw(node));
-    }
+      childState.parent = state.node;
+      childState.root = state.root;
+
+      if (is.undefined(reference)) {
+        _add(childState.node);
+      } else {
+        var referenceState = getState(reference);
+
+        _add(childState.node, referenceState.node);
+      }
+
+      child.decorateState();
+
+      return child;
+    },
+    decorateState: function decorateState() {
+      node.walk(function (current, parent) {
+        var currentState = getState(current);
+        var parentState = getState(parent);
+
+        if (parent) currentState.parent = parentState.node;
+
+        currentState.root = state.root;
+      });
+    },
+    getValue: getValue,
+    setValue: setValue
   };
 
   return wrapped;

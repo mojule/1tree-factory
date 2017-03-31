@@ -236,16 +236,18 @@ const testAdapter = ( adapterName, testCommon = true ) => {
         root.add( child )
         child.add( grandchild )
 
-        const clonedRoot = root.clone()
+        const cloned = root.clone()
 
-        root.add( clonedRoot )
+        root.add( cloned )
+
+        const clonedRoot = cloned.getRoot()
 
         assert.equal( root.getChildren().length, 2 )
-        assert.equal( clonedRoot.getRoot(), root )
+        assert.equal( clonedRoot, root )
 
         child.empty()
 
-        const childClone = clonedRoot.firstChild()
+        const childClone = cloned.firstChild()
 
         assert.equal( childClone.getChildren().length, 1 )
 
@@ -934,7 +936,7 @@ describe( 'Plugins', () => {
     it( 'setValue', () => {
       const PluginTree = TreeFactory( arrayAdapter, isValueObject, setValueOrValueProperty )
 
-      const root = PluginTree( {} )
+      const root = PluginTree( { name: 'None' } )
 
       root.setValue( { name: 'Root' } )
 

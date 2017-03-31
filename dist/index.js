@@ -31,10 +31,10 @@ var TreeFactory = function TreeFactory(adapter) {
   var modules = [adapter, adapterWrapper, common].concat(_toConsumableArray(plugins));
 
   var TreeApi = ApiFactory(modules, { getStateKey: getStateKey, isState: isState });
-  var statics = TreeApi({ node: null, root: null, parent: null });
-  var createNode = statics.createNode,
-      isNode = statics.isNode,
-      isValue = statics.isValue;
+
+  var createNode = TreeApi.createNode,
+      isNode = TreeApi.isNode,
+      isValue = TreeApi.isValue;
 
 
   var Tree = function Tree(value) {
@@ -50,16 +50,13 @@ var TreeFactory = function TreeFactory(adapter) {
 
     var nodeApi = TreeApi({ node: rawRoot, root: rawRoot, parent: null });
 
-    nodeApi.walk(function (current, parent) {
-      if (parent) current.state.parent = parent.state.node;
-
-      current.state.root = rawRoot;
-    });
+    nodeApi.decorateState();
 
     return nodeApi;
   };
 
-  Object.assign(Tree, { createNode: createNode, isNode: isNode, isValue: isValue });
+  // attach statics
+  Object.assign(Tree, TreeApi);
 
   return Tree;
 };

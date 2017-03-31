@@ -5,16 +5,12 @@ const utils = require( '@mojule/utils' )
 
 const jsonClone = utils.clone
 
-const Raw = current => current.state.node
-
-const Common = node => {
+const Common = ( node, state, getState ) => {
   const Node = ( rawNode, rawParent, rawRoot ) => node({
-    root: rawRoot || node.state.root,
+    root: rawRoot || state.root,
     node: rawNode,
     parent: rawParent || null
   })
-
-  const state = node.state
 
   // expose raw
   const get = () => state.node
@@ -92,17 +88,18 @@ const Common = node => {
   const firstChild = () => node.getChildren()[ 0 ]
 
   const getParent = () => {
-    if( node.state.parent )
-      return Node( node.state.parent )
-
-    if( node.state.node === node.state.root )
+    if( state.node === state.root )
       return
+
+    if( state.parent )
+      return Node( state.parent )
 
     const parent = getRoot().find( current =>
       current.hasChild( node )
     )
 
-    node.state.parent = parent.state.node
+    const parentState = getState( parent )
+    state.parent = parentState.node
 
     return parent
   }

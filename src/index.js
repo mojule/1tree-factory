@@ -27,8 +27,8 @@ const TreeFactory = ( adapter, ...plugins ) => {
   ]
 
   const TreeApi = ApiFactory( modules, { getStateKey, isState } )
-  const statics = TreeApi({ node: null, root: null, parent: null })
-  const { createNode, isNode, isValue } = statics
+
+  const { createNode, isNode, isValue } = TreeApi
 
   const Tree = value => {
     let rawRoot
@@ -43,17 +43,13 @@ const TreeFactory = ( adapter, ...plugins ) => {
 
     const nodeApi = TreeApi( { node: rawRoot, root: rawRoot, parent: null } )
 
-    nodeApi.walk( ( current, parent ) => {
-      if( parent )
-        current.state.parent = parent.state.node
-
-      current.state.root = rawRoot
-    })
+    nodeApi.decorateState()
 
     return nodeApi
   }
 
-  Object.assign( Tree, { createNode, isNode, isValue } )
+  // attach statics
+  Object.assign( Tree, TreeApi )
 
   return Tree
 }

@@ -2,43 +2,25 @@
 
 const is = require( '@mojule/is' )
 
-// ensure that undefined etc. is passed through to underlying adapter unchanged
-const Raw = node => {
-  if( node && node.state && node.state.node )
-    return node.state.node
-
-  return node
-}
-
 // must be applied after the adapter, but before anything else
-const AdapterWrapper = node => {
-  const Node = ( rawNode, rawParent, rawRoot ) => node({
-    root: is.undefined( rawRoot ) ? node.state.root : rawRoot,
-    node: rawNode,
-    parent: rawParent
-  })
-
+const AdapterWrapper = ( node, state, getState ) => {
   const {
-    getChildren, remove, add
+    getChildren, remove, add, getValue, setValue
   } = node
-
-  const assignRoots = ( current, rawParent ) => {
-    if( !current.state )
-      throw new Error( 'Expected wrapped node' )
-
-    current.state.root = node.state.root
-    current.state.parent = rawParent
-
-    current.getChildren().forEach( child => assignRoots( child, current.state.node ) )
-
-    return current
-  }
 
   const wrapped = {
     getChildren: () => {
       const children = getChildren()
 
-      return children.map( child => Node( child, Raw( node ) ) )
+      return children.map( child => {
+        const childState = {
+          node: child,
+          parent: state.node,
+          root: state.root
+        }
+
+        return node( childState )
+      })
     },
     remove: child => {
       // allow a node other than root to remove itself
@@ -51,12 +33,14 @@ const AdapterWrapper = node => {
         return parent.remove( node )
       }
 
-      const rawChild = remove( Raw( child ) )
+      const childState = getState( child )
 
-      child.state.root = rawChild
-      child.state.parent = null
+      childState.parent = null
+      childState.root = childState.node
 
-      return Node( rawChild, null, rawChild )
+      remove( childState.node )
+
+      return child
     },
     add: ( child, reference ) => {
       if( !node.accepts( child ) )
@@ -68,10 +52,36 @@ const AdapterWrapper = node => {
       if( parent )
         parent.remove( child )
 
-      const rawChild = add( Raw( child ), Raw( reference ) )
+      const childState = getState( child )
 
-      return assignRoots( Node( rawChild, Raw( node ) ), Raw( node ) )
-    }
+      childState.parent = state.node
+      childState.root = state.root
+
+      if( is.undefined( reference ) ){
+        add( childState.node )
+      } else {
+        const referenceState = getState( reference )
+
+        add( childState.node, referenceState.node )
+      }
+
+      child.decorateState()
+
+      return child
+    },
+    decorateState: () => {
+      node.walk( ( current, parent ) => {
+        const currentState = getState( current )
+        const parentState = getState( parent )
+
+        if( parent )
+          currentState.parent = parentState.node
+
+        currentState.root = state.root
+      })
+    },
+    getValue: getValue,
+    setValue: setValue
   }
 
   return wrapped

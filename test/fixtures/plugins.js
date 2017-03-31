@@ -11,25 +11,18 @@ const isValueObject = node => {
 
   return {
     // add additional constraint
-    isValue: value => isValue( value ) && is.object( value )
+    $isValue: value => isValue( value ) && is.object( value )
   }
 }
 
-const isNodeWithId = node => {
-  const Node = rawNode => node({
-    node: rawNode,
-    root: node.state.root,
-    parent: null
-  })
-
+const isNodeWithId = ( node, state ) => {
   // get the existing isNode
   const { isNode } = node
 
   return {
     // add additional constraint
-    isNode: rawNode => {
-      const current = Node( rawNode )
-      const value = current.getValue()
+    $isNode: rawNode => {
+      const value = rawNode[ 0 ]
 
       return isNode( rawNode ) &&
         is.object( value ) && is.string( value.id ) && value.id.length > 0
@@ -37,16 +30,16 @@ const isNodeWithId = node => {
   }
 }
 
-const createNodeWithId = node => {
+const createNodeWithId = ( node, state ) => {
   const Node = rawNode => node({
     node: rawNode,
-    root: node.state.root
+    root: state.root
   })
 
   const { createNode } = node
 
   return {
-    createNode: value => {
+    $createNode: value => {
       value = Object.assign( {}, value, { id: id( 'node' ) } )
 
       return createNode( value )
@@ -91,16 +84,16 @@ const getValueOrValueProperty = node => {
 }
 
 const setValueOrValueProperty = node => {
-  const { getValue, setValue, isValue } = node
+  const { setValue } = node
 
   return {
     setValue: ( ...args ) => {
-      if( isValue( args[ 0 ] ) )
+      if( node.isValue( args[ 0 ] ) )
         return setValue( args[ 0 ] )
 
       const name = args[ 0 ]
       const propertyValue = args[ 1 ]
-      const value = getValue()
+      const value = node.getValue()
 
       value[ name ] = propertyValue
 
@@ -139,11 +132,11 @@ const onlyAcceptNodesWithId = node => {
 }
 
 const nodeTypeFromValue = node => {
-  const { nodeType, getValue } = node
+  const { nodeType } = node
 
   return {
     nodeType: () => {
-      const valueNodeType = getValue( 'nodeType' )
+      const valueNodeType = node.getValue( 'nodeType' )
 
       if( is.string( valueNodeType ) )
         return valueNodeType
@@ -154,10 +147,10 @@ const nodeTypeFromValue = node => {
 }
 
 const emptyFromNodeType = node => {
-  const { isEmpty, nodeType } = node
+  const { isEmpty } = node
 
   return {
-    isEmpty: () => nodeType() === 'empty' || isEmpty()
+    isEmpty: () => node.nodeType() === 'empty' || isEmpty()
   }
 }
 
