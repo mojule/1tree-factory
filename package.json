@@ -1,11 +1,12 @@
 {
   "name": "@mojule/tree-factory",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Takes an adapter/plugins and generates a consistent API over arbitrary tree-like data",
   "main": "index.js",
   "scripts": {
     "build": "gulp",
-    "test": "mocha"
+    "test": "mocha",
+    "coverage": "istanbul cover node_modules/mocha/bin/_mocha"
   },
   "repository": {
     "type": "git",
@@ -29,6 +30,7 @@
     "babel-preset-es2015": "^6.18.0",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
+    "istanbul": "^0.4.5",
     "mocha": "^3.2.0"
   }
 }

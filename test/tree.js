@@ -12,6 +12,11 @@ const plugins = require( './fixtures/plugins' )
 
 const { capitalizeFirstLetter, clone } = utils
 
+const adapters = {
+  array: arrayAdapter,
+  object: objectAdapter
+}
+
 const trees = {
   array: TreeFactory( arrayAdapter ),
   object: TreeFactory( objectAdapter )
@@ -67,6 +72,11 @@ const testAdapter = ( adapterName, testCommon = true ) => {
   const treeName = capitalizeFirstLetter( adapterName ) + ' Tree'
 
   describe( treeName, () => {
+    it( 'fails with bad factory args', () => {
+      assert.throws( () => TreeFactory() )
+      assert.throws( () => TreeFactory( adapters[ adapterName ], 'a' ) )
+    })
+
     it( 'creates a tree from a value', () => {
       const root = Tree( 'Root' )
 
