@@ -3,7 +3,7 @@
 const assert = require( 'assert' )
 const utils = require( '@mojule/utils' )
 const is = require( '@mojule/is' )
-const TreeFactory = require( '../dist' )
+const TreeFactory = require( '../src' )
 const arrayAdapter = require( './fixtures/array-adapter' )
 const objectAdapter = require( './fixtures/object-adapter' )
 const biologyArray = require( './fixtures/biology-array.json' )
@@ -285,6 +285,7 @@ const testAdapter = ( adapterName, testCommon = true ) => {
         assert.equal( ancestors.length, 2 )
         assert.equal( ancestors[ 0 ], child )
         assert.equal( ancestors[ 1 ], root )
+        assert.deepEqual( root.ancestors(), [] )
       })
 
       it( 'childAt', () => {
@@ -442,6 +443,30 @@ const testAdapter = ( adapterName, testCommon = true ) => {
 
           assert.equal( current.getValue(), value )
         })
+
+        let eighteen
+
+        last.walkUp( current => {
+          eighteen = current
+
+          const value = current.getValue()
+
+          return value === '18'
+        })
+
+        assert.equal( eighteen.getValue(), '18' )
+
+        let nineteen
+
+        last.walkUp( current => {
+          nineteen = current
+
+          const value = current.getValue()
+
+          return value === '19'
+        })
+
+        assert.equal( nineteen.getValue(), '19' )
       })
 
       it( 'accepts', () => {
@@ -464,6 +489,8 @@ const testAdapter = ( adapterName, testCommon = true ) => {
         assert.equal( root.atPath( '/' ), root )
         assert.equal( root.atPath( '/0/0/0' ), greatGrandchild )
         assert.equal( root.atPath( '-0-0-0', '-' ), greatGrandchild )
+
+        assert.throws( () => root.atPath( '/0/0/0/0' ) )
       })
 
       it( 'contains', () => {
@@ -535,6 +562,17 @@ const testAdapter = ( adapterName, testCommon = true ) => {
         })
       })
 
+      it( 'hasChild', () => {
+        const root = Tree( 'Root' )
+        const child = Tree( 'Child' )
+        const nope = Tree( 'Nope' )
+
+        root.add( child )
+
+        assert( root.hasChild( child ) )
+        assert( !root.hasChild( nope ) )
+      })
+
       it( 'hasChildren', () => {
         const root = Tree( 'Root' )
         const child = Tree( 'Child' )
@@ -555,6 +593,7 @@ const testAdapter = ( adapterName, testCommon = true ) => {
 
         assert.equal( child0.index(), 0 )
         assert.equal( child1.index(), 1 )
+        assert.equal( root.index(), undefined )
       })
 
       it( 'isEmpty', () => {
@@ -576,6 +615,7 @@ const testAdapter = ( adapterName, testCommon = true ) => {
 
         assert.equal( child.getMeta( 'id' ), 'child' )
         assert.equal( root.getMeta( 'id' ), 'root' )
+        assert.deepEqual( child.meta(), { id: 'child' } )
 
         root.add( child )
 
@@ -589,6 +629,12 @@ const testAdapter = ( adapterName, testCommon = true ) => {
 
         assert.equal( child.getMeta( 'nope' ), undefined )
         assert.equal( child.meta( 'nope' ), undefined )
+
+        child.meta( { name: 'Bob' } )
+
+        assert.deepEqual( child.meta(), { id: 'newchild', name: 'Bob' } )
+
+        assert.throws( () => child.meta( 1 ) )
       })
 
       it( 'nodeType', () => {
@@ -702,6 +748,21 @@ const testAdapter = ( adapterName, testCommon = true ) => {
         assert.equal( children[ 2 ], child2 )
       })
 
+      it( 'prune', () => {
+        const root = Tree( 'Root' )
+        const child = Tree( 'Child' )
+        const grandchild = Tree( 'Grandchild' )
+        const greatGrandchild = Tree( 'Great grandchild' )
+
+        root.add( child )
+        child.add( grandchild )
+        grandchild.add( greatGrandchild )
+
+        root.prune( current => current.getValue() === 'Grandchild' )
+
+        assert.equal( child.getChildren().length, 0 )
+      })
+
       it( 'removeAt', () => {
         const root = Tree( 'Root' )
         const child0 = Tree( 'Child 0' )
@@ -756,6 +817,8 @@ const testAdapter = ( adapterName, testCommon = true ) => {
 
         assert.equal( greatGrandchild.getParent(), child )
         assert.equal( child.firstChild(), greatGrandchild )
+
+        assert.throws( () => root.unwrap() )
       })
 
       it( 'value', () => {
@@ -783,6 +846,12 @@ const testAdapter = ( adapterName, testCommon = true ) => {
         assert.equal( child.firstChild(), grandchild )
         assert.equal( grandchild.getParent(), child )
         assert.equal( greatGrandchild.getParent(), grandchild )
+
+        const newRoot = Tree( 'New Root' )
+        root.wrap( newRoot )
+
+        assert.equal( root.getRoot(), newRoot )
+        assert.equal( greatGrandchild.getRoot(), newRoot )
       })
     })
 
@@ -835,6 +904,36 @@ const testAdapter = ( adapterName, testCommon = true ) => {
 
           assert.equal( values[ parentPath ], parentValue )
         })
+      })
+    })
+
+    describe( 'Takes options', () => {
+      it( 'Overrides exposeState', () => {
+        const adapter = adapters[ adapterName ]
+        const options = { exposeState: true }
+        const Tree = TreeFactory( adapter, options )
+
+        const root = Tree( 'Root' )
+
+        assert( is.object( root.state ) )
+      })
+
+      it( 'Overrides parseState', () => {
+        const parseState = value => {
+          if( is.array( value ) && value.every( is.string ) )
+            return value.join( '' )
+
+          return value
+        }
+
+        const adapter = adapters[ adapterName ]
+        const Tree = TreeFactory( adapter, { parseState } )
+
+        const root = Tree( [ 'R', 'o', 'o', 't' ] )
+        const child = Tree( 'Child' )
+
+        assert.equal( root.getValue(), 'Root' )
+        assert.equal( child.getValue(), 'Child' )
       })
     })
   })

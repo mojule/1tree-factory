@@ -107,16 +107,7 @@ var Common = function Common(node, state, getState) {
   var getParent = function getParent() {
     if (state.node === state.root) return;
 
-    if (state.parent) return Node(state.parent);
-
-    var parent = getRoot().find(function (current) {
-      return current.hasChild(node);
-    });
-
-    var parentState = getState(parent);
-    state.parent = parentState.node;
-
-    return parent;
+    return Node(state.parent);
   };
 
   var lastChild = function lastChild() {
@@ -234,13 +225,13 @@ var Common = function Common(node, state, getState) {
     });
 
     slugs.forEach(function (slug) {
-      if (node) {
-        var children = node.getChildren();
+      var children = node.getChildren();
 
-        node = children.find(function (child) {
-          return child.slug() === slug;
-        });
-      }
+      node = children.find(function (child) {
+        return child.slug() === slug;
+      });
+
+      if (is.undefined(node)) throw new Error('Bad slug in path: ' + slug);
     });
 
     return node;

@@ -91,17 +91,7 @@ const Common = ( node, state, getState ) => {
     if( state.node === state.root )
       return
 
-    if( state.parent )
-      return Node( state.parent )
-
-    const parent = getRoot().find( current =>
-      current.hasChild( node )
-    )
-
-    const parentState = getState( parent )
-    state.parent = parentState.node
-
-    return parent
+    return Node( state.parent )
   }
 
   const lastChild = () => {
@@ -210,13 +200,14 @@ const Common = ( node, state, getState ) => {
     const slugs = path.split( separator ).filter( s => s !== '' )
 
     slugs.forEach( slug => {
-      if( node ){
-        const children = node.getChildren()
+      const children = node.getChildren()
 
-        node = children.find( child =>
-          child.slug() === slug
-        )
-      }
+      node = children.find( child =>
+        child.slug() === slug
+      )
+
+      if( is.undefined( node ) )
+        throw new Error( `Bad slug in path: ${ slug }` )
     })
 
     return node

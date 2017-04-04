@@ -24,20 +24,36 @@ var TreeFactory = function TreeFactory(adapter) {
 
   if (!is.function(adapter)) throw new Error('An adapter module is required');
 
+  var options = {};
+
+  if (plugins.length > 0 && is.object(plugins[plugins.length - 1])) options = plugins.pop();
+
   if (plugins.length === 1 && is.array(plugins[0])) plugins = plugins[0];
 
   if (!plugins.every(is.function)) throw new Error('Expected every plugin to be a function');
 
   var modules = [adapter, adapterWrapper, common].concat(_toConsumableArray(plugins));
 
-  var TreeApi = ApiFactory(modules, { getStateKey: getStateKey, isState: isState });
+  var onCreate = function onCreate(node) {
+    return node.decorateState();
+  };
 
-  var createNode = TreeApi.createNode,
-      isNode = TreeApi.isNode,
-      isValue = TreeApi.isValue;
+  options = Object.assign({ getStateKey: getStateKey, isState: isState, onCreate: onCreate }, options);
+
+  var Tree = ApiFactory(modules, options);
+
+  var createNode = Tree.createNode,
+      isNode = Tree.isNode,
+      isValue = Tree.isValue;
 
 
-  var Tree = function Tree(value) {
+  var parseState = function parseState() {
+    var _options;
+
+    var value = options.parseState ? (_options = options).parseState.apply(_options, arguments) : arguments.length <= 0 ? undefined : arguments[0];
+
+    if (Tree.isState(value)) return value;
+
     var rawRoot = void 0;
 
     if (isValue(value)) {
@@ -48,15 +64,10 @@ var TreeFactory = function TreeFactory(adapter) {
       throw new Error('Tree requires a raw node or a node value');
     }
 
-    var nodeApi = TreeApi({ node: rawRoot, root: rawRoot, parent: null });
-
-    nodeApi.decorateState();
-
-    return nodeApi;
+    return { node: rawRoot, root: rawRoot, parent: null };
   };
 
-  // attach statics
-  Object.assign(Tree, TreeApi);
+  Tree.parseState = parseState;
 
   return Tree;
 };

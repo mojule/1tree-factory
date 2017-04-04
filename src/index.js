@@ -14,6 +14,11 @@ const TreeFactory = ( adapter, ...plugins ) => {
   if( !is.function( adapter ) )
     throw new Error( 'An adapter module is required' )
 
+  let options = {}
+
+  if( plugins.length > 0 && is.object( plugins[ plugins.length - 1 ] ) )
+    options = plugins.pop()
+
   if( plugins.length === 1 && is.array( plugins[ 0 ] ) )
     plugins = plugins[ 0 ]
 
@@ -26,11 +31,19 @@ const TreeFactory = ( adapter, ...plugins ) => {
     ...plugins
   ]
 
-  const TreeApi = ApiFactory( modules, { getStateKey, isState } )
+  const onCreate = node => node.decorateState()
 
-  const { createNode, isNode, isValue } = TreeApi
+  options = Object.assign( { getStateKey, isState, onCreate }, options )
 
-  const Tree = value => {
+  const Tree = ApiFactory( modules, options )
+
+  const { createNode, isNode, isValue } = Tree
+
+  const parseState = ( ...args ) => {
+    const value = options.parseState ? options.parseState( ...args ) : args[ 0 ]
+
+    if( Tree.isState( value ) ) return value
+
     let rawRoot
 
     if( isValue( value ) ){
@@ -41,15 +54,10 @@ const TreeFactory = ( adapter, ...plugins ) => {
       throw new Error( 'Tree requires a raw node or a node value' )
     }
 
-    const nodeApi = TreeApi( { node: rawRoot, root: rawRoot, parent: null } )
-
-    nodeApi.decorateState()
-
-    return nodeApi
+    return { node: rawRoot, root: rawRoot, parent: null }
   }
 
-  // attach statics
-  Object.assign( Tree, TreeApi )
+  Tree.parseState = parseState
 
   return Tree
 }
