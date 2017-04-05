@@ -17,6 +17,26 @@ var isState = function isState(state) {
   });
 };
 
+var parseState = function parseState(Tree) {
+  var value = arguments.length <= 1 ? undefined : arguments[1];
+
+  if (Tree.isState(value)) return;
+
+  var rawRoot = void 0;
+
+  if (Tree.isValue(value)) {
+    rawRoot = Tree.createNode(value);
+  } else if (Tree.isNode(value)) {
+    rawRoot = value;
+  } else {
+    throw new Error('Tree requires a raw node or a node value');
+  }
+
+  return { node: rawRoot, root: rawRoot, parent: null };
+};
+
+var defaultStateParsers = [parseState];
+
 var TreeFactory = function TreeFactory(adapter) {
   for (var _len = arguments.length, plugins = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
     plugins[_key - 1] = arguments[_key];
@@ -40,34 +60,13 @@ var TreeFactory = function TreeFactory(adapter) {
 
   options = Object.assign({ getStateKey: getStateKey, isState: isState, onCreate: onCreate }, options);
 
+  if (is.array(options.stateParsers)) {
+    options.stateParsers = options.stateParsers.concat(defaultStateParsers);
+  } else {
+    options.stateParsers = defaultStateParsers;
+  }
+
   var Tree = ApiFactory(modules, options);
-
-  var createNode = Tree.createNode,
-      isNode = Tree.isNode,
-      isValue = Tree.isValue;
-
-
-  var parseState = function parseState() {
-    var _options;
-
-    var value = options.parseState ? (_options = options).parseState.apply(_options, arguments) : arguments.length <= 0 ? undefined : arguments[0];
-
-    if (Tree.isState(value)) return value;
-
-    var rawRoot = void 0;
-
-    if (isValue(value)) {
-      rawRoot = createNode(value);
-    } else if (isNode(value)) {
-      rawRoot = value;
-    } else {
-      throw new Error('Tree requires a raw node or a node value');
-    }
-
-    return { node: rawRoot, root: rawRoot, parent: null };
-  };
-
-  Tree.parseState = parseState;
 
   return Tree;
 };
