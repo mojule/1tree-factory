@@ -10,6 +10,26 @@ const getStateKey = state => state.node
 const isState = state =>
   is.object( state ) && [ 'node', 'root', 'parent' ].every( key => key in state )
 
+const parseState = ( Tree, ...args ) => {
+  const value = args[ 0 ]
+
+  if( Tree.isState( value ) ) return
+
+  let rawRoot
+
+  if( Tree.isValue( value ) ){
+    rawRoot = Tree.createNode( value )
+  } else if( Tree.isNode( value ) ){
+    rawRoot = value
+  } else {
+    throw new Error( 'Tree requires a raw node or a node value' )
+  }
+
+  return { node: rawRoot, root: rawRoot, parent: null }
+}
+
+const defaultStateParsers = [ parseState ]
+
 const TreeFactory = ( adapter, ...plugins ) => {
   if( !is.function( adapter ) )
     throw new Error( 'An adapter module is required' )
@@ -35,29 +55,13 @@ const TreeFactory = ( adapter, ...plugins ) => {
 
   options = Object.assign( { getStateKey, isState, onCreate }, options )
 
-  const Tree = ApiFactory( modules, options )
-
-  const { createNode, isNode, isValue } = Tree
-
-  const parseState = ( ...args ) => {
-    const value = options.parseState ? options.parseState( ...args ) : args[ 0 ]
-
-    if( Tree.isState( value ) ) return value
-
-    let rawRoot
-
-    if( isValue( value ) ){
-      rawRoot = createNode( value )
-    } else if( isNode( value ) ){
-      rawRoot = value
-    } else {
-      throw new Error( 'Tree requires a raw node or a node value' )
-    }
-
-    return { node: rawRoot, root: rawRoot, parent: null }
+  if( is.array( options.stateParsers ) ){
+    options.stateParsers = options.stateParsers.concat( defaultStateParsers )
+  } else {
+    options.stateParsers = defaultStateParsers
   }
 
-  Tree.parseState = parseState
+  const Tree = ApiFactory( modules, options )
 
   return Tree
 }

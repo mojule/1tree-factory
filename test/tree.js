@@ -918,16 +918,17 @@ const testAdapter = ( adapterName, testCommon = true ) => {
         assert( is.object( root.state ) )
       })
 
-      it( 'Overrides parseState', () => {
-        const parseState = value => {
-          if( is.array( value ) && value.every( is.string ) )
-            return value.join( '' )
+      it( 'Adds stateParser', () => {
+        const parseState = ( Api, value ) => {
+          if( is.array( value ) && value.every( is.string ) ){
+            const rawNode = Api.createNode( value.join( '' ) )
 
-          return value
+            return { node: rawNode, root: rawNode, parent: null }
+          }
         }
 
         const adapter = adapters[ adapterName ]
-        const Tree = TreeFactory( adapter, { parseState } )
+        const Tree = TreeFactory( adapter, { stateParsers: [ parseState ] } )
 
         const root = Tree( [ 'R', 'o', 'o', 't' ] )
         const child = Tree( 'Child' )
