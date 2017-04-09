@@ -1,6 +1,6 @@
 {
   "name": "@mojule/tree-factory",
-  "version": "0.3.5",
+  "version": "0.4.0",
   "description": "Takes an adapter/plugins and generates a consistent API over arbitrary tree-like data",
   "main": "index.js",
   "scripts": {
@@ -22,8 +22,8 @@
   "author": "Nik Coughlin <nrkn.com@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@mojule/api-factory": "^0.4.9",
-    "@mojule/is": "^0.1.1",
+    "@mojule/api-factory": "^0.5.1",
+    "@mojule/is": "^0.1.2",
     "@mojule/utils": "^0.1.10"
   },
   "devDependencies": {

@@ -83,6 +83,33 @@ const testAdapter = ( adapterName, testCommon = true ) => {
       assert( root )
     })
 
+    it( 'createState static', () => {
+      const createStateModule = api => {
+        const { createState } = api
+
+        return {
+          $createState: value => {
+            if( is.array( value ) && value.every( is.string ) ){
+              const rawNode = api.createNode( value.join( '' ) )
+
+              return { node: rawNode, root: rawNode, parent: null }
+            }
+
+            return createState( value )
+          }
+        }
+      }
+
+      const adapter = adapters[ adapterName ]
+      const Tree = TreeFactory( adapter, createStateModule )
+
+      const root = Tree( [ 'R', 'o', 'o', 't' ] )
+      const child = Tree( 'Child' )
+
+      assert.equal( root.getValue(), 'Root' )
+      assert.equal( child.getValue(), 'Child' )
+    })
+
     /*
       getChildren, getValue, setValue, remove, add, isNode, isValue, createNode
     */
@@ -916,25 +943,6 @@ const testAdapter = ( adapterName, testCommon = true ) => {
         const root = Tree( 'Root' )
 
         assert( is.object( root.state ) )
-      })
-
-      it( 'Adds stateParser', () => {
-        const parseState = ( Api, value ) => {
-          if( is.array( value ) && value.every( is.string ) ){
-            const rawNode = Api.createNode( value.join( '' ) )
-
-            return { node: rawNode, root: rawNode, parent: null }
-          }
-        }
-
-        const adapter = adapters[ adapterName ]
-        const Tree = TreeFactory( adapter, { stateParsers: [ parseState ] } )
-
-        const root = Tree( [ 'R', 'o', 'o', 't' ] )
-        const child = Tree( 'Child' )
-
-        assert.equal( root.getValue(), 'Root' )
-        assert.equal( child.getValue(), 'Child' )
       })
     })
   })
