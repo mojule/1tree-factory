@@ -10,22 +10,17 @@ const getStateKey = state => state.node
 const isState = state =>
   is.object( state ) && [ 'node', 'root', 'parent' ].every( key => key in state )
 
-const parseState = ( Tree, ...args ) => {
-  const value = args[ 0 ]
-
+const parseState = ( Tree, value ) => {
   if( Tree.isState( value ) ) return
 
-  let rawRoot
-
   if( Tree.isValue( value ) ){
-    rawRoot = Tree.createNode( value )
-  } else if( Tree.isNode( value ) ){
-    rawRoot = value
-  } else {
-    throw new Error( 'Tree requires a raw node or a node value' )
+    const rawRoot = Tree.createNode( value )
+    return { node: rawRoot, root: rawRoot, parent: null }
   }
 
-  return { node: rawRoot, root: rawRoot, parent: null }
+  if( Tree.isNode( value ) ){
+    return { node: value, root: value, parent: null }
+  }
 }
 
 const defaultStateParsers = [ parseState ]
