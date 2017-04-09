@@ -1,6 +1,6 @@
 {
   "name": "@mojule/tree-factory",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Takes an adapter/plugins and generates a consistent API over arbitrary tree-like data",
   "main": "index.js",
   "scripts": {
