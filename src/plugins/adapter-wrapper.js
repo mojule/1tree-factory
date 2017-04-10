@@ -4,9 +4,7 @@ const is = require( '@mojule/is' )
 
 // must be applied after the adapter, but before anything else
 const AdapterWrapper = ( node, state, getState ) => {
-  const {
-    getChildren, remove, add, getValue, setValue
-  } = node
+  const { getChildren, remove, add } = node
 
   const wrapped = {
     getChildren: () => {
@@ -79,9 +77,7 @@ const AdapterWrapper = ( node, state, getState ) => {
 
         currentState.root = state.root
       })
-    },
-    getValue: getValue,
-    setValue: setValue
+    }
   }
 
   return wrapped
