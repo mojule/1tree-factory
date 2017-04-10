@@ -6,6 +6,7 @@ var ApiFactory = require('@mojule/api-factory');
 var is = require('@mojule/is');
 var adapterWrapper = require('./plugins/adapter-wrapper');
 var createState = require('./plugins/create-state');
+var createRoot = require('./plugins/create-root');
 var common = require('./common');
 
 var getStateKey = function getStateKey(state) {
@@ -33,7 +34,7 @@ var TreeFactory = function TreeFactory(adapter) {
 
   if (!plugins.every(is.function)) throw new Error('Expected every plugin to be a function');
 
-  var modules = [adapter, createState, adapterWrapper, common].concat(_toConsumableArray(plugins));
+  var modules = [adapter, createRoot, createState, adapterWrapper, common].concat(_toConsumableArray(plugins));
 
   var onCreate = function onCreate(node) {
     return node.decorateState();

@@ -9,11 +9,11 @@ const createStatePlugin = api => {
       if( api.isValue( value ) ){
         const rawRoot = api.createNode( value )
 
-        return { node: rawRoot, root: rawRoot, parent: null }
+        return api.createRootState( rawRoot )
       }
 
       if( api.isNode( value ) ){
-        return { node: value, root: value, parent: null }
+        return api.createRootState( value )
       }
     }
   }

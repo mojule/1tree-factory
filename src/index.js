@@ -4,6 +4,7 @@ const ApiFactory = require( '@mojule/api-factory' )
 const is = require( '@mojule/is' )
 const adapterWrapper = require( './plugins/adapter-wrapper' )
 const createState = require( './plugins/create-state' )
+const createRoot = require( './plugins/create-root' )
 const common = require( './common' )
 
 const getStateKey = state => state.node
@@ -28,6 +29,7 @@ const TreeFactory = ( adapter, ...plugins ) => {
 
   const modules = [
     adapter,
+    createRoot,
     createState,
     adapterWrapper,
     common,
