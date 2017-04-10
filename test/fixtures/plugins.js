@@ -36,13 +36,13 @@ const createNodeWithId = ( node, state ) => {
     root: state.root
   })
 
-  const { createNode } = node
+  const { createRawNode } = node
 
   return {
-    $createNode: value => {
+    $createRawNode: value => {
       value = Object.assign( {}, value, { id: id( 'node' ) } )
 
-      return createNode( value )
+      return createRawNode( value )
     }
   }
 }

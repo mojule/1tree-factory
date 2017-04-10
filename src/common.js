@@ -41,7 +41,7 @@ const Common = ( node, state, getState ) => {
       throw new Error( 'Node value must be JSON serializable to clone' )
     }
 
-    const rawClone = node.createNode( clonedValue )
+    const rawClone = node.createRawNode( clonedValue )
     const clonedNode = Node( rawClone, null, rawClone )
 
     node.getChildren().forEach( child => {

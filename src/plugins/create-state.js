@@ -7,7 +7,7 @@ const createStatePlugin = api => {
         return value
 
       if( api.isValue( value ) ){
-        const rawRoot = api.createNode( value )
+        const rawRoot = api.createRawNode( value )
 
         return api.createRootState( rawRoot )
       }

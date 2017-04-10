@@ -6,7 +6,7 @@ var createStatePlugin = function createStatePlugin(api) {
       if (api.isState(value)) return value;
 
       if (api.isValue(value)) {
-        var rawRoot = api.createNode(value);
+        var rawRoot = api.createRawNode(value);
 
         return api.createRootState(rawRoot);
       }

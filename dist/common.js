@@ -51,7 +51,7 @@ var Common = function Common(node, state, getState) {
       throw new Error('Node value must be JSON serializable to clone');
     }
 
-    var rawClone = node.createNode(clonedValue);
+    var rawClone = node.createRawNode(clonedValue);
     var clonedNode = Node(rawClone, null, rawClone);
 
     node.getChildren().forEach(function (child) {

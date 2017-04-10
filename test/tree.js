@@ -90,7 +90,7 @@ const testAdapter = ( adapterName, testCommon = true ) => {
         return {
           $createState: value => {
             if( is.array( value ) && value.every( is.string ) ){
-              const rawNode = api.createNode( value.join( '' ) )
+              const rawNode = api.createRawNode( value.join( '' ) )
 
               return { node: rawNode, root: rawNode, parent: null }
             }
@@ -111,7 +111,8 @@ const testAdapter = ( adapterName, testCommon = true ) => {
     })
 
     /*
-      getChildren, getValue, setValue, remove, add, isNode, isValue, createNode
+      getChildren, getValue, setValue, remove, add, isNode, isValue,
+      createRawNode
     */
     describe( 'adapter functions', () => {
       it( 'getChildren', () => {
@@ -1009,7 +1010,7 @@ describe( 'Plugins', () => {
       assert( !PluginTree.isNode( [ { name: 'Root' } ] ) )
     })
 
-    it( 'createNode', () => {
+    it( 'createRawNode', () => {
       const PluginTree = TreeFactory( arrayAdapter, isValueObject, createNodeWithId )
 
       const root = PluginTree( { name: 'Root' } )

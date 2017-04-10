@@ -13,7 +13,7 @@ extensively later in this document:
 ```javascript
 const api = {
   // adapter
-  isNode, isValue, createNode, getChildren, getValue, setValue, remove, add,
+  isNode, isValue, createRawNode, getChildren, getValue, setValue, remove, add,
 
   // miscellaneous
   get, getRoot, map, clone,
@@ -190,7 +190,7 @@ const adapter = ( api, state ) => {
   // implement functions here
 
   return {
-    $isNode, $isValue, $createNode, getChildren, getValue, setValue, remove, add
+    $isNode, $isValue, $createRawNode, getChildren, getValue, setValue, remove, add
   }
 }
 ```
@@ -211,7 +211,7 @@ built.
 
 Adapters must implement the following functions:
 
-`$isNode, $isValue, $createNode, getChildren, getValue, setValue, remove, add`
+`$isNode, $isValue, $createRawNode, getChildren, getValue, setValue, remove, add`
 
 The signatures for these are as follows, using similar syntax to typescript or
 rtype.
@@ -223,7 +223,7 @@ $isNode( rawNode:Any ) => isNode:Boolean
 
 $isValue( value:Any ) => isValue:Boolean
 
-$createNode( value:Any ) => rawNode:RawNode
+$createRawNode( value:Any ) => rawNode:RawNode
 
 getChildren() => childNodes:[RawNode]
 
@@ -238,7 +238,7 @@ add( rawChild:RawNode, reference?:RawNode ) => addedChild:RawNode
 
 ### Notes
 
-`$isNode`, `$isValue` and `$createNode` are treated as static functions, that
+`$isNode`, `$isValue` and `$createRawNode` are treated as static functions, that
 is, they shouldn't depend on the state passed to your adapter
 
 `add` called with a single argument should add the new child to the end of the
