@@ -6,9 +6,7 @@ var is = require('@mojule/is');
 var AdapterWrapper = function AdapterWrapper(node, state, getState) {
   var _getChildren = node.getChildren,
       _remove = node.remove,
-      _add = node.add,
-      getValue = node.getValue,
-      setValue = node.setValue;
+      _add = node.add;
 
 
   var wrapped = {
@@ -45,7 +43,12 @@ var AdapterWrapper = function AdapterWrapper(node, state, getState) {
       return child;
     },
     add: function add(child, reference) {
-      if (!node.accepts(child)) throw new Error('Node cannot accept this child');
+      if (!node.accepts(child)) {
+        var from = node.nodeType();
+        var to = child.nodeType();
+
+        throw new Error('Node of type ' + from + ' cannot children of type ' + to);
+      }
 
       var parent = child.getParent();
 
@@ -78,9 +81,7 @@ var AdapterWrapper = function AdapterWrapper(node, state, getState) {
 
         currentState.root = state.root;
       });
-    },
-    getValue: getValue,
-    setValue: setValue
+    }
   };
 
   return wrapped;

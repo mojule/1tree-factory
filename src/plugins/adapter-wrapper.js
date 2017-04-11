@@ -41,8 +41,14 @@ const AdapterWrapper = ( node, state, getState ) => {
       return child
     },
     add: ( child, reference ) => {
-      if( !node.accepts( child ) )
-        throw new Error( 'Node cannot accept this child' )
+      if( !node.accepts( child ) ){
+        const from = node.nodeType()
+        const to = child.nodeType()
+
+        throw new Error(
+          `Node of type ${ from } cannot children of type ${ to }`
+        )
+      }
 
       const parent = child.getParent()
 
