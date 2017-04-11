@@ -46,7 +46,10 @@ const AdapterWrapper = ( node, state, getState ) => {
         const to = child.nodeType()
 
         throw new Error(
-          `Node of type ${ from } cannot children of type ${ to }`
+          `Node of type ${ from } cannot accept children of type ${ to }.
+Node value: ${ JSON.stringify( node.getValue() ) }
+Child value: ${ JSON.stringify( child.getValue() ) }`
+
         )
       }
 
