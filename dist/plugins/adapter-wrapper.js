@@ -47,7 +47,7 @@ var AdapterWrapper = function AdapterWrapper(node, state, getState) {
         var from = node.nodeType();
         var to = child.nodeType();
 
-        throw new Error('Node of type ' + from + ' cannot children of type ' + to);
+        throw new Error('Node of type ' + from + ' cannot accept children of type ' + to + '.\nNode value: ' + JSON.stringify(node.getValue()) + '\nChild value: ' + JSON.stringify(child.getValue()));
       }
 
       var parent = child.getParent();

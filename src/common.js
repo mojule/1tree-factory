@@ -313,7 +313,7 @@ const Common = ( node, state, getState ) => {
 
   const insertBefore = ( child, reference ) => node.add( child, reference )
 
-  const empty = () => node.getChildren().forEach( child => node.remove( child ) )
+  const empty = () => node.getChildren().map( child => node.remove( child ) )
 
   const insertAfter = ( child, reference ) => {
     const children = node.getChildren()

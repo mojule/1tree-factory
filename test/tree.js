@@ -110,6 +110,21 @@ const testAdapter = ( adapterName, testCommon = true ) => {
       assert.equal( child.getValue(), 'Child' )
     })
 
+    it( 'createRootState', () => {
+      const rawNode = Tree.createRawNode( 'Root' )
+      const state = Tree.createRootState( rawNode )
+
+      assert( Tree.isState( state ) )
+      assert.throws( () => Tree.createRootState( 'Root' ) )
+    })
+
+    it( 'createRoot', () => {
+      const rawNode = Tree.createRawNode( 'Root' )
+      const root = Tree.createRoot( rawNode )
+
+      assert.equal( root.getValue(), 'Root' )
+    })
+
     /*
       getChildren, getValue, setValue, remove, add, isNode, isValue,
       createRawNode
@@ -699,9 +714,12 @@ const testAdapter = ( adapterName, testCommon = true ) => {
         root.add( child0 )
         root.add( child1 )
 
-        root.empty()
+        const children = root.getChildren()
+        const removed = root.empty()
 
         assert.equal( root.getChildren().length, 0 )
+
+        assert.deepEqual( children, removed )
       })
 
       it( 'insertAfter', () => {

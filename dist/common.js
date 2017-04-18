@@ -351,7 +351,7 @@ var Common = function Common(node, state, getState) {
   };
 
   var empty = function empty() {
-    return node.getChildren().forEach(function (child) {
+    return node.getChildren().map(function (child) {
       return node.remove(child);
     });
   };
