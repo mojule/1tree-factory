@@ -94,6 +94,20 @@ const Common = ( node, state, getState ) => {
     return Node( state.parent )
   }
 
+  const hasAncestor = ancestor => {
+    let has = false
+
+    node.walkUp( current => {
+      if( current === ancestor ){
+        has = true
+
+        return has
+      }
+    })
+
+    return has
+  }
+
   const lastChild = () => {
     const children = node.getChildren()
 
@@ -396,8 +410,9 @@ const Common = ( node, state, getState ) => {
 
     map, clone,
 
-    ancestors, childAt, closest, descendants, firstChild, getParent, lastChild,
-    nextSibling, previousSibling, siblings, walk, walkUp,
+    ancestors, childAt, closest, descendants, firstChild, getParent,
+    hasAncestor, lastChild, nextSibling, previousSibling, siblings, walk,
+    walkUp,
 
     accepts, atPath, contains, find, findAll, getMeta, getPath, hasChild,
     hasChildren, index, isEmpty, meta, nodeType, setMeta, slug,

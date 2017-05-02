@@ -267,8 +267,8 @@ const common = {
   get, getRoot, map, clone,
 
   // traversal
-  ancestors, childAt, closest, descendants, firstChild, getParent, lastChild,
-  nextSibling, previousSibling, siblings, walk, walkUp,
+  ancestors, childAt, closest, descendants, firstChild, getParent, hasAncestor,
+  lastChild, nextSibling, previousSibling, siblings, walk, walkUp,
 
   // query
   accepts, atPath, contains, find, findAll, getMeta, getPath, hasChild,
@@ -382,6 +382,15 @@ Gets the parent of the current node, or `undefined` if the node is the root
 
 ```javascript
 const parent = node.getParent()
+```
+
+#### hasAncestor
+
+Returns `true` if the given node is an ancestor of the current node, or `false`
+if not
+
+```javascript
+const has = node.hasAncestor( otherNode )
 ```
 
 #### lastChild

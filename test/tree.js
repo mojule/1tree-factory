@@ -240,18 +240,6 @@ const testAdapter = ( adapterName, testCommon = true ) => {
 
     if( !testCommon ) return
 
-    /*
-      get, getRoot,
-
-      ancestors, childAt, closest, descendants, firstChild, getParent, lastChild,
-      nextSibling, previousSibling, siblings, walk, walkUp,
-
-      atPath, contains, find, findAll, getPath, hasChildren, index, isEmpty,
-      nodeType, slug,
-
-      append, empty, insertAfter, insertAt, insertBefore, prepend, removeAt,
-      replaceChild, unwrap, wrap
-    */
     describe( 'common functions', () => {
       it( 'get', () => {
         const root = Tree( 'Root' )
@@ -279,6 +267,18 @@ const testAdapter = ( adapterName, testCommon = true ) => {
         const parent = child.getParent()
 
         assert.equal( root.get(), parent.get() )
+      })
+
+      it( 'hasAncestor', () => {
+        const root = Tree( 'Root' )
+        const child = Tree( 'Child' )
+        const grandchild = Tree( 'Grandchild' )
+
+        root.add( child )
+        child.add( grandchild )
+
+        assert( grandchild.hasAncestor( root ) )
+        assert( !child.hasAncestor( grandchild ) )
       })
 
       it( 'clone', () => {
