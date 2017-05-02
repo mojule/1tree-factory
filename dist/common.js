@@ -110,6 +110,20 @@ var Common = function Common(node, state, getState) {
     return Node(state.parent);
   };
 
+  var hasAncestor = function hasAncestor(ancestor) {
+    var has = false;
+
+    node.walkUp(function (current) {
+      if (current === ancestor) {
+        has = true;
+
+        return has;
+      }
+    });
+
+    return has;
+  };
+
   var lastChild = function lastChild() {
     var children = node.getChildren();
 
@@ -433,8 +447,9 @@ var Common = function Common(node, state, getState) {
 
     map: map, clone: clone,
 
-    ancestors: ancestors, childAt: childAt, closest: closest, descendants: descendants, firstChild: firstChild, getParent: getParent, lastChild: lastChild,
-    nextSibling: nextSibling, previousSibling: previousSibling, siblings: siblings, walk: walk, walkUp: walkUp,
+    ancestors: ancestors, childAt: childAt, closest: closest, descendants: descendants, firstChild: firstChild, getParent: getParent,
+    hasAncestor: hasAncestor, lastChild: lastChild, nextSibling: nextSibling, previousSibling: previousSibling, siblings: siblings, walk: walk,
+    walkUp: walkUp,
 
     accepts: accepts, atPath: atPath, contains: contains, find: find, findAll: findAll, getMeta: getMeta, getPath: getPath, hasChild: hasChild,
     hasChildren: hasChildren, index: index, isEmpty: isEmpty, meta: meta, nodeType: nodeType, setMeta: setMeta, slug: slug,
