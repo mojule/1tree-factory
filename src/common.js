@@ -214,14 +214,14 @@ const Common = ( node, state, getState ) => {
     const slugs = path.split( separator ).filter( s => s !== '' )
 
     slugs.forEach( slug => {
+      if( is.undefined( node ) )
+        return
+
       const children = node.getChildren()
 
       node = children.find( child =>
         child.slug() === slug
       )
-
-      if( is.undefined( node ) )
-        throw new Error( `Bad slug in path: ${ slug }` )
     })
 
     return node

@@ -533,7 +533,8 @@ const testAdapter = ( adapterName, testCommon = true ) => {
         assert.equal( root.atPath( '/0/0/0' ), greatGrandchild )
         assert.equal( root.atPath( '-0-0-0', '-' ), greatGrandchild )
 
-        assert.throws( () => root.atPath( '/0/0/0/0' ) )
+        assert.equal( root.atPath( '/0/0/0/0' ), undefined )
+        assert.equal( root.atPath( '/0/0/0/0/0' ), undefined )
       })
 
       it( 'contains', () => {

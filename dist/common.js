@@ -239,13 +239,13 @@ var Common = function Common(node, state, getState) {
     });
 
     slugs.forEach(function (slug) {
+      if (is.undefined(node)) return;
+
       var children = node.getChildren();
 
       node = children.find(function (child) {
         return child.slug() === slug;
       });
-
-      if (is.undefined(node)) throw new Error('Bad slug in path: ' + slug);
     });
 
     return node;
