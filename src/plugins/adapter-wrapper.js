@@ -59,7 +59,12 @@ Child value: ${ JSON.stringify( child.getValue() ) }`
       if( parent )
         parent.remove( child )
 
-      const childState = getState( child )
+      let childState = getState( child )
+
+      if( is.undefined( childState ) ){
+        child = node( child.get() )
+        childState = getState( child )
+      }
 
       childState.parent = state.node
       childState.root = state.root
