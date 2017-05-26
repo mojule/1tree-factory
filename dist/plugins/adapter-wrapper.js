@@ -57,6 +57,11 @@ var AdapterWrapper = function AdapterWrapper(node, state, getState) {
 
       var childState = getState(child);
 
+      if (is.undefined(childState)) {
+        child = node(child.get());
+        childState = getState(child);
+      }
+
       childState.parent = state.node;
       childState.root = state.root;
 
