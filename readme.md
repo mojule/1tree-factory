@@ -486,9 +486,10 @@ if( !node.accepts( child ) ){
 #### atPath
 
 Returns the node in the tree at the specified path. The path is parsed by
-splitting on the provided separator if provided, or the default separator of '/'
-if not provided, then walking down from the root and finding the child with a
-matching `slug` (see slug below)
+splitting on the separator then walking down from the root and finding the child with a
+matching `slug` (see slug below). The separator defaults to '/'. This can be overridden in the call.
+
+
 
 ```javascript
 const target1 = root.atPath( '/0/4/1/1/0' )
@@ -498,7 +499,7 @@ const target2 = root.atPath( '.0.4.1.1.0', '.' )
 
 #### contains
 
-Returns a boolean indicating whether the node or any of its descendants matches
+Returns a boolean indicating whether the node or any of its descendants match
 the predicate
 
 ```javascript
